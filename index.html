@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d2238" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="description" content="ConstructNet UTP - Plataforma colaborativa de networking para estudiantes de Gestión de la Construcción" />
+  <title>ConstructNet UTP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="authHost"></div>
+  <div id="onboardingHost"></div>
+
+  <header class="topbar">
+    <div class="brand" data-route="dashboard" tabindex="0" role="button" aria-label="Ir al inicio">
+      <div class="brand-mark">CN</div>
+      <div>
+        <strong>ConstructNet</strong>
+        <span>UTP · Gestión de la Construcción</span>
+      </div>
+    </div>
+    <button id="menuBtn" class="icon-btn mobile-only" aria-label="Abrir menú">☰</button>
+    <nav id="topActions" class="top-actions">
+      <button class="ghost-btn" data-route="notifications">🔔 <span id="notificationBadge" class="badge" style="display:none">0</span></button>
+      <button class="avatar-btn" data-route="profile" aria-label="Ver perfil">
+        <span id="topAvatar">WS</span>
+      </button>
+    </nav>
+  </header>
+
+  <div class="app-shell">
+    <aside id="sidebar" class="sidebar">
+      <button class="nav-item active" data-route="dashboard">▦ <span>Inicio</span></button>
+      <button class="nav-item" data-route="profile">👤 <span>Mi perfil</span></button>
+      <button class="nav-item" data-route="matching">⚡ <span>Mi match</span></button>
+      <button class="nav-item" data-route="rooms">👥 <span>Mesas estratégicas</span></button>
+      <button class="nav-item" data-route="directory">⌕ <span>Directorio</span></button>
+      <button class="nav-item" data-route="network">🤝 <span>Mi red</span></button>
+      <button class="nav-item" data-route="opportunities">💼 <span>Oportunidades</span></button>
+      <button class="nav-item" data-route="history">🕘 <span>Historial</span></button>
+      <button class="nav-item" data-route="score">🏆 <span>Mi puntaje</span></button>
+      <button id="logoutBtn" class="nav-item logout-item">⇥ <span>Cerrar sesión</span></button>
+      <div class="sidebar-foot">
+        <p>Prototipo académico</p>
+        <small>Innovación y Design Thinking</small>
+      </div>
+    </aside>
+
+    <main id="app" class="content" tabindex="-1"></main>
+  </div>
+
+  <template id="dashboardTpl">
+    <section class="hero-card">
+      <div>
+        <span class="eyebrow">COMUNIDAD DIGITAL COLABORATIVA</span>
+        <h1>Hola, <span data-user-name>Estudiante</span> 👋</h1>
+        <p>Conecta con profesionales complementarios, comparte conocimiento y construye alianzas estratégicas.</p>
+        <div class="hero-actions">
+          <button id="heroFindRoom" class="primary-btn">Encontrar mi mesa</button>
+          <button id="heroCompleteProfile" class="secondary-btn">Completar perfil</button>
+        </div>
+      </div>
+      <div class="hero-visual" aria-hidden="true"><div class="crane">🏗️</div><div class="network-node n1"></div><div class="network-node n2"></div><div class="network-node n3"></div><div class="network-line l1"></div><div class="network-line l2"></div></div>
+    </section>
+    <section class="stats-grid">
+      <article class="stat-card"><span>Perfil completado</span><strong id="dashCompletion">0%</strong><small>Completa tu ADN Profesional</small></article>
+      <article class="stat-card"><span>Conexiones</span><strong id="dashConnections">0</strong><small>Profesionales en tu red</small></article>
+      <article class="stat-card"><span>Networking Score</span><strong id="dashScore">0</strong><small>Crece participando</small></article>
+      <article class="stat-card"><span>Mesas inscritas</span><strong id="dashJoinedTopics">0</strong><small>Temas seleccionados</small></article>
+    </section>
+    <section class="grid-2">
+      <article class="panel next-room"><div class="panel-head"><div><span class="eyebrow">MESAS ESTRATÉGICAS</span><h2>Explora los 7 temas</h2></div></div><div id="dashRoomSummary" class="empty-state"></div><button id="dashExploreRooms" class="primary-btn full">Explorar mesas</button></article>
+      <article class="panel"><div class="panel-head"><div><span class="eyebrow">ACTIVIDAD</span><h2>Últimas novedades</h2></div></div><div class="activity-list" id="activityList"></div></article>
+    </section>
+    <section class="panel"><div class="panel-head"><div><span class="eyebrow">OPORTUNIDADES</span><h2>Recomendadas para ti</h2></div><button class="text-btn" data-route="opportunities">Ver todas →</button></div><div class="cards-3" id="featuredOpportunities"></div></section>
+  </template>
+
+  <template id="profileTpl">
+    <section class="page-head"><div><span class="eyebrow">MI ADN PROFESIONAL</span><h1>Perfil profesional</h1><p>Todo el perfil es editable y alimenta el motor de complementariedad.</p></div><button id="saveProfileBtn" class="primary-btn">Guardar cambios</button></section>
+    <section class="profile-layout">
+      <article class="panel profile-summary">
+        <div id="profilePhoto" class="profile-photo">?</div>
+        <label class="photo-upload">Cambiar foto<input id="avatarInput" type="file" accept="image/*" hidden></label>
+        <h2 id="profileDisplayName">Sin nombre</h2><p id="profileDisplayRole">Sin cargo</p>
+        <div class="profile-meta"><span id="profileCity">📍 Sin ciudad</span><span id="profileSector">🏢 Sin sector</span><span id="profileSpecialty">🧱 Sin especialidad</span></div>
+        <div class="completion"><div><span>Perfil completado</span><strong id="completionText">0%</strong></div><div class="progress"><i id="completionBar" style="width:0%"></i></div></div>
+      </article>
+      <article class="panel form-panel"><form id="profileForm">
+        <div class="form-section"><h3>Información profesional</h3><div class="form-grid">
+          <label>Nombre completo<input name="name" required placeholder="Nombres y apellidos"></label>
+          <label>Celular<input name="phone" type="tel" placeholder="+51 999 999 999"></label>
+          <label>Correo<input name="email" type="email" readonly></label>
+          <label>Ciudad<input name="city" placeholder="Ej. Chiclayo"></label>
+          <label>Empresa / entidad<input name="company" placeholder="Empresa o institución"></label>
+          <label>Cargo<input name="role" placeholder="Cargo actual"></label>
+          <label>Sector<input name="sector" placeholder="Ej. Construcción, minería, sector público"></label>
+          <label>Especialidad<select name="specialty"><option value="">Seleccionar</option><option>Gestión de proyectos</option><option>Gestión pública</option><option>BIM</option><option>Calidad</option><option>Costos y planeamiento</option><option>Residencia de obra</option><option>Seguridad / SSOMA</option><option>Contrataciones</option><option>Arquitectura y diseño</option></select></label>
+          <label>Años de experiencia<input name="experience" type="number" min="0" placeholder="0"></label>
+          <label>LinkedIn<input name="linkedin" type="url" placeholder="https://linkedin.com/in/..."></label>
+        </div><label>Resumen profesional<textarea name="bio" placeholder="Describe brevemente tu experiencia, fortalezas y proyectos."></textarea></label></div>
+        <div class="form-section"><h3>Lo que domino <small>máximo 5</small></h3><div class="chip-picker" data-field="skills"></div></div>
+        <div class="form-section"><h3>Lo que quiero aprender <small>máximo 5</small></h3><div class="chip-picker" data-field="learning"></div></div>
+        <div class="form-section"><h3>Lo que puedo aportar <small>máximo 5</small></h3><div class="chip-picker" data-field="offers"></div></div>
+        <div class="form-section"><h3>Objetivos profesionales</h3><div class="chip-picker" data-field="goals"></div></div>
+        <div class="form-section"><h3>Tipos de proyecto</h3><div class="chip-picker" data-field="projects"></div></div>
+        <div class="form-section"><h3>Disponibilidad</h3><div class="availability" id="availability"></div></div>
+      </form></article>
+    </section>
+  </template>
+
+  <template id="matchingTpl">
+    <section class="page-head"><div><span class="eyebrow">MOTOR DE COMPLEMENTARIEDAD</span><h1>Elige una Mesa Estratégica</h1><p>Explora los 7 temas y evalúa si tu ADN Profesional cumple el perfil recomendado.</p></div></section>
+    <section id="topicsGrid" class="topic-grid"></section>
+    <section class="panel algorithm"><div class="panel-head"><div><span class="eyebrow">TRANSPARENCIA</span><h2>¿Cómo evaluamos tu perfil?</h2></div></div><div class="formula-grid"><div><strong>35%</strong><span>Conocimientos ↔ tema</span></div><div><strong>25%</strong><span>Aprendizaje ↔ aportes</span></div><div><strong>20%</strong><span>Objetivos compatibles</span></div><div><strong>10%</strong><span>Proyectos relacionados</span></div><div><strong>10%</strong><span>Disponibilidad</span></div></div></section>
+  </template>
+
+  <template id="roomsTpl">
+    <section class="page-head"><div><span class="eyebrow">MESA ESTRATÉGICA</span><h1 id="roomPageTitle">Selecciona un tema</h1><p id="roomPageDescription">La sala se forma conforme los usuarios elegibles se inscriben.</p></div><button id="joinRoomBtn" class="primary-btn">Evaluar mi perfil</button></section>
+    <section class="room-stage panel">
+      <div class="room-top"><div><span id="roomStatus" class="pill">EN FORMACIÓN</span><h2 id="roomTitle">Mesa Estratégica</h2><p id="roomSchedule">Mínimo 3 · Máximo 6 participantes</p></div><div class="countdown"><span>Participantes</span><strong id="roomCount">0/6</strong></div></div>
+      <div class="agenda"><div><strong>01</strong><span>Presentación individual</span><small>2 min por persona</small></div><div><strong>02</strong><span>Intercambio de valor</span><small>Conversación guiada</small></div><div><strong>03</strong><span>Alianzas y acuerdos</span><small>Contactos y próximos pasos</small></div></div>
+      <div id="eligibilityBox" class="reason-box"></div>
+      <div class="room-roster" id="roomRoster"></div>
+      <div class="conversation-card"><h3>Guía de presentación</h3><ol><li>¿Quién eres y en qué trabajas?</li><li>¿Qué conocimiento puedes aportar?</li><li>¿Qué buscas aprender o conseguir?</li><li>¿Qué oportunidad de colaboración propones?</li></ol></div>
+    </section>
+    <section class="panel"><div class="panel-head"><div><span class="eyebrow">CUANDO LA MESA ESTÉ ACTIVA</span><h2>Conexiones profesionales</h2></div></div><div id="connectList" class="connect-list"></div><button id="saveConnectionsBtn" class="primary-btn">Guardar conexiones seleccionadas</button></section>
+  </template>
+
+  <template id="directoryTpl">
+    <section class="page-head"><div><span class="eyebrow">COMUNIDAD</span><h1>Directorio profesional</h1><p>Encuentra especialistas por conocimiento, proyecto u objetivo.</p></div></section>
+    <section class="filter-bar panel"><input id="directorySearch" placeholder="Buscar por nombre, especialidad o competencia..."><select id="specialtyFilter"><option value="">Todas las especialidades</option></select><select id="cityFilter"><option value="">Todas las ciudades</option></select></section>
+    <section class="professional-grid" id="directoryGrid"></section>
+  </template>
+
+  <template id="networkTpl">
+    <section class="page-head"><div><span class="eyebrow">CONEXIONES</span><h1>Mi red profesional</h1><p>Contactos aceptados en tus mesas estratégicas.</p></div></section>
+    <section class="professional-grid" id="networkGrid"></section>
+  </template>
+
+  <template id="opportunitiesTpl">
+    <section class="page-head"><div><span class="eyebrow">COLABORACIÓN</span><h1>Oportunidades</h1><p>Vacantes, proyectos, consultorías, eventos e investigación.</p></div><button id="newOpportunityBtn" class="primary-btn">+ Publicar oportunidad</button></section>
+    <section class="filter-tabs" id="opportunityTabs"></section>
+    <section class="opportunity-list" id="opportunityList"></section>
+  </template>
+
+  <template id="historyTpl">
+    <section class="page-head"><div><span class="eyebrow">TRAZABILIDAD</span><h1>Historial de networking</h1><p>Revisa mesas anteriores, contactos creados y notas personales.</p></div></section>
+    <section class="timeline" id="historyTimeline"></section>
+  </template>
+
+  <template id="scoreTpl">
+    <section class="page-head"><div><span class="eyebrow">GAMIFICACIÓN</span><h1>Networking Score</h1><p>Reconoce la participación y el aporte real a la comunidad.</p></div></section>
+    <section class="score-layout">
+      <article class="score-main panel"><div class="score-badge">🏆</div><strong id="scoreValue">540</strong><h2>Constructor de Redes</h2><p>Te faltan 160 puntos para llegar a “Conector Estratégico”.</p><div class="progress"><i style="width:77%"></i></div></article>
+      <article class="panel"><h2>¿Cómo sumar puntos?</h2><div class="points-list"><div><span>Asistir a una mesa</span><strong>+20</strong></div><div><span>Completar perfil</span><strong>+10</strong></div><div><span>Crear una conexión mutua</span><strong>+40</strong></div><div><span>Publicar una oportunidad</span><strong>+15</strong></div><div><span>Recibir una recomendación</span><strong>+25</strong></div><div><span>Compartir un proyecto</span><strong>+30</strong></div></div></article>
+    </section>
+    <section class="panel"><div class="panel-head"><div><span class="eyebrow">MOVIMIENTOS</span><h2>Actividad de puntos</h2></div></div><div class="activity-list" id="scoreActivity"></div></section>
+  </template>
+
+  <template id="notificationsTpl">
+    <section class="page-head"><div><span class="eyebrow">ACTUALIZACIONES</span><h1>Notificaciones</h1></div></section>
+    <section class="panel"><div class="activity-list" id="notificationsList"></div></section>
+  </template>
+
+  <dialog id="opportunityDialog">
+    <form method="dialog" id="opportunityForm" class="dialog-card">
+      <div class="panel-head"><div><span class="eyebrow">NUEVA PUBLICACIÓN</span><h2>Compartir oportunidad</h2></div><button value="cancel" class="icon-btn">✕</button></div>
+      <label>Tipo<select name="type"><option>Vacante</option><option>Proyecto</option><option>Consultoría</option><option>Evento</option><option>Investigación</option></select></label>
+      <label>Título<input name="title" required placeholder="Ej. Especialista BIM"></label>
+      <label>Descripción<textarea name="description" required placeholder="Describe brevemente la oportunidad"></textarea></label>
+      <label>Ubicación<input name="location" placeholder="Lima / Remoto"></label>
+      <menu><button value="cancel" class="secondary-btn">Cancelar</button><button value="default" id="publishOpportunityBtn" class="primary-btn">Publicar</button></menu>
+    </form>
+  </dialog>
+
+  <nav class="bottom-nav" aria-label="Navegación principal móvil">
+    <button class="bottom-item active" data-route="dashboard"><span>⌂</span><small>Inicio</small></button>
+    <button class="bottom-item" data-route="matching"><span>⚡</span><small>Match</small></button>
+    <button class="bottom-item bottom-main" data-route="rooms"><span>👥</span><small>Mesas</small></button>
+    <button class="bottom-item" data-route="network"><span>🤝</span><small>Mi red</small></button>
+    <button class="bottom-item" data-route="profile"><span>👤</span><small>Perfil</small></button>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="cloud-config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
