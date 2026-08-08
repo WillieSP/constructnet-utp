@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d2238" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="description" content="ConstructNet UTP - Plataforma colaborativa de networking para estudiantes de Gestión de la Construcción" />
+  <title>ConstructNet UTP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="authHost"></div>
+  <div id="onboardingHost"></div>
+
+  <header class="topbar">
+    <div class="brand" data-route="dashboard" tabindex="0" role="button" aria-label="Ir al inicio">
+      <div class="brand-mark">CN</div>
+      <div>
+        <strong>ConstructNet</strong>
+        <span>UTP · Gestión de la Construcción</span>
+      </div>
+    </div>
+    <button id="menuBtn" class="icon-btn mobile-only" aria-label="Abrir menú">☰</button>
+    <nav id="topActions" class="top-actions">
+      <button class="ghost-btn" data-route="notifications">🔔 <span class="badge">3</span></button>
+      <button class="avatar-btn" data-route="profile" aria-label="Ver perfil">
+        <span id="topAvatar">WS</span>
+      </button>
+    </nav>
+  </header>
+
+  <div class="app-shell">
+    <aside id="sidebar" class="sidebar">
+      <button class="nav-item active" data-route="dashboard">▦ <span>Inicio</span></button>
+      <button class="nav-item" data-route="profile">👤 <span>Mi perfil</span></button>
+      <button class="nav-item" data-route="matching">⚡ <span>Mi match</span></button>
+      <button class="nav-item" data-route="rooms">👥 <span>Mesas estratégicas</span></button>
+      <button class="nav-item" data-route="directory">⌕ <span>Directorio</span></button>
+      <button class="nav-item" data-route="network">🤝 <span>Mi red</span></button>
+      <button class="nav-item" data-route="opportunities">💼 <span>Oportunidades</span></button>
+      <button class="nav-item" data-route="history">🕘 <span>Historial</span></button>
+      <button class="nav-item" data-route="score">🏆 <span>Mi puntaje</span></button>
+      <button id="logoutBtn" class="nav-item logout-item">⇥ <span>Cerrar sesión</span></button>
+      <div class="sidebar-foot">
+        <p>Prototipo académico</p>
+        <small>Innovación y Design Thinking</small>
+      </div>
+    </aside>
+
+    <main id="app" class="content" tabindex="-1"></main>
+  </div>
+
+  <template id="dashboardTpl">
+    <section class="hero-card">
+      <div>
+        <span class="eyebrow">COMUNIDAD DIGITAL COLABORATIVA</span>
+        <h1>Hola, <span data-user-name>Willeams</span> 👋</h1>
+        <p>Conecta con profesionales complementarios, comparte conocimiento y construye alianzas estratégicas.</p>
+        <div class="hero-actions">
+          <button class="primary-btn" data-route="matching">Encontrar mi mesa</button>
+          <button class="secondary-btn" data-route="profile">Completar perfil</button>
+        </div>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="crane">🏗️</div>
+        <div class="network-node n1"></div><div class="network-node n2"></div><div class="network-node n3"></div>
+        <div class="network-line l1"></div><div class="network-line l2"></div>
+      </div>
+    </section>
+
+    <section class="stats-grid">
+      <article class="stat-card"><span>Índice de sinergia</span><strong id="dashSynergy">92%</strong><small>Potencial de complementariedad</small></article>
+      <article class="stat-card"><span>Conexiones</span><strong id="dashConnections">12</strong><small>Profesionales en tu red</small></article>
+      <article class="stat-card"><span>Networking Score</span><strong id="dashScore">540</strong><small>Nivel: Constructor de Redes</small></article>
+      <article class="stat-card"><span>Próxima mesa</span><strong>Viernes</strong><small>8:30 p. m. · BIM público</small></article>
+    </section>
+
+    <section class="grid-2">
+      <article class="panel next-room">
+        <div class="panel-head"><div><span class="eyebrow">PRÓXIMA SESIÓN</span><h2>Mesa: BIM para obras públicas</h2></div><span class="pill">5 participantes</span></div>
+        <div class="room-members" id="dashMembers"></div>
+        <div class="reason-box"><strong>¿Por qué fuiste seleccionado?</strong><p>Quieres aprender BIM, puedes aportar experiencia en contrataciones y el grupo comparte interés en proyectos públicos.</p></div>
+        <button class="primary-btn full" data-route="rooms">Ver detalles de la mesa</button>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head"><div><span class="eyebrow">ACTIVIDAD</span><h2>Últimas novedades</h2></div></div>
+        <div class="activity-list" id="activityList"></div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><div><span class="eyebrow">OPORTUNIDADES</span><h2>Recomendadas para ti</h2></div><button class="text-btn" data-route="opportunities">Ver todas →</button></div>
+      <div class="cards-3" id="featuredOpportunities"></div>
+    </section>
+  </template>
+
+  <template id="profileTpl">
+    <section class="page-head"><div><span class="eyebrow">MI ADN PROFESIONAL</span><h1>Perfil profesional</h1><p>Estos datos alimentan el motor de complementariedad.</p></div><button id="saveProfileBtn" class="primary-btn">Guardar cambios</button></section>
+    <section class="profile-layout">
+      <article class="panel profile-summary">
+        <div class="profile-photo" id="profilePhoto">WS</div>
+        <h2 id="profileDisplayName">Willeams Seclén</h2>
+        <p id="profileDisplayRole">Especialista Administrativo</p>
+        <div class="profile-meta"><span>📍 Chiclayo</span><span>🏢 Sector público</span><span>🧱 Gestión de construcción</span></div>
+        <div class="completion"><div><span>Perfil completado</span><strong id="completionText">85%</strong></div><div class="progress"><i id="completionBar" style="width:85%"></i></div></div>
+      </article>
+      <article class="panel form-panel">
+        <form id="profileForm">
+          <div class="form-section"><h3>Información profesional</h3><div class="form-grid">
+            <label>Nombre completo<input name="name" value="Willeams Seclén Pérez" required></label>
+            <label>Ciudad<input name="city" value="Chiclayo"></label>
+            <label>Empresa / entidad<input name="company" value="Municipalidad Provincial de Chiclayo"></label>
+            <label>Cargo<input name="role" value="Especialista Administrativo"></label>
+            <label>Especialidad<select name="specialty"><option>Gestión pública</option><option>Gestión de proyectos</option><option>BIM</option><option>Calidad</option><option>Costos</option><option>Planeamiento</option></select></label>
+            <label>Años de experiencia<input name="experience" type="number" min="0" value="6"></label>
+          </div></div>
+
+          <div class="form-section"><h3>Lo que domino <small>máximo 5</small></h3><div class="chip-picker" data-field="skills"></div></div>
+          <div class="form-section"><h3>Lo que quiero aprender <small>máximo 5</small></h3><div class="chip-picker" data-field="learning"></div></div>
+          <div class="form-section"><h3>Lo que puedo aportar <small>máximo 5</small></h3><div class="chip-picker" data-field="offers"></div></div>
+          <div class="form-section"><h3>Objetivos profesionales</h3><div class="chip-picker" data-field="goals"></div></div>
+          <div class="form-section"><h3>Tipos de proyecto</h3><div class="chip-picker" data-field="projects"></div></div>
+          <div class="form-section"><h3>Disponibilidad</h3><div class="availability" id="availability"></div></div>
+        </form>
+      </article>
+    </section>
+  </template>
+
+  <template id="matchingTpl">
+    <section class="page-head"><div><span class="eyebrow">MOTOR DE COMPLEMENTARIEDAD</span><h1>Tu próxima conexión estratégica</h1><p>No buscamos perfiles iguales: formamos grupos donde todos aportan y todos reciben valor.</p></div><button id="recalculateBtn" class="secondary-btn">Recalcular</button></section>
+    <section class="match-hero panel">
+      <div class="synergy-ring"><div><strong id="synergyScore">94%</strong><span>Sinergia</span></div></div>
+      <div class="match-copy"><span class="pill">Match recomendado</span><h2>Mesa Estratégica: BIM y Gestión Pública</h2><p>La combinación une experiencia en BIM, contratación pública, calidad, costos y planeamiento.</p><div class="match-reasons" id="matchReasons"></div><button class="primary-btn" data-route="rooms">Reservar mi lugar</button></div>
+    </section>
+    <section class="panel"><div class="panel-head"><div><span class="eyebrow">PARTICIPANTES PROPUESTOS</span><h2>Grupo complementario</h2></div><span class="pill">Mín. 3 · Máx. 6</span></div><div class="professional-grid" id="matchPeople"></div></section>
+    <section class="panel algorithm"><div class="panel-head"><div><span class="eyebrow">TRANSPARENCIA</span><h2>¿Cómo se calcula el match?</h2></div></div><div class="formula-grid"><div><strong>30%</strong><span>Aprender ↔ aportar</span></div><div><strong>25%</strong><span>Objetivos compatibles</span></div><div><strong>20%</strong><span>Proyectos relacionados</span></div><div><strong>15%</strong><span>Disponibilidad común</span></div><div><strong>10%</strong><span>Diversidad profesional</span></div></div></section>
+  </template>
+
+  <template id="roomsTpl">
+    <section class="page-head"><div><span class="eyebrow">SPEED NETWORKING</span><h1>Mesas Estratégicas</h1><p>Sesiones guiadas de 20 minutos con grupos de 3 a 6 profesionales.</p></div><button id="joinRoomBtn" class="primary-btn">Ingresar a la sala</button></section>
+    <section class="room-stage panel">
+      <div class="room-top"><div><span class="pill live">● PROGRAMADA</span><h2>BIM para obras públicas</h2><p>Viernes · 8:30 p. m. · Duración: 20 minutos</p></div><div class="countdown"><span>Empieza en</span><strong id="countdown">01:24:36</strong></div></div>
+      <div class="agenda"><div><strong>01</strong><span>Presentación individual</span><small>2 min por persona</small></div><div><strong>02</strong><span>Intercambio de valor</span><small>8 minutos</small></div><div><strong>03</strong><span>Alianzas y acuerdos</span><small>4 minutos</small></div></div>
+      <div class="room-roster" id="roomRoster"></div>
+      <div class="conversation-card"><h3>Guía de presentación</h3><ol><li>¿Quién eres y en qué trabajas?</li><li>¿Qué conocimiento puedes aportar?</li><li>¿Qué buscas aprender o conseguir?</li><li>¿Qué oportunidad de colaboración propones?</li></ol></div>
+    </section>
+    <section class="panel"><div class="panel-head"><div><span class="eyebrow">DESPUÉS DE LA REUNIÓN</span><h2>Selecciona con quién conectar</h2></div></div><div class="connect-list" id="connectList"></div><button id="saveConnectionsBtn" class="primary-btn">Guardar conexiones</button></section>
+  </template>
+
+  <template id="directoryTpl">
+    <section class="page-head"><div><span class="eyebrow">COMUNIDAD</span><h1>Directorio profesional</h1><p>Encuentra especialistas por conocimiento, proyecto u objetivo.</p></div></section>
+    <section class="filter-bar panel"><input id="directorySearch" placeholder="Buscar por nombre, especialidad o competencia..."><select id="specialtyFilter"><option value="">Todas las especialidades</option></select><select id="cityFilter"><option value="">Todas las ciudades</option></select></section>
+    <section class="professional-grid" id="directoryGrid"></section>
+  </template>
+
+  <template id="networkTpl">
+    <section class="page-head"><div><span class="eyebrow">CONEXIONES</span><h1>Mi red profesional</h1><p>Contactos aceptados en tus mesas estratégicas.</p></div></section>
+    <section class="professional-grid" id="networkGrid"></section>
+  </template>
+
+  <template id="opportunitiesTpl">
+    <section class="page-head"><div><span class="eyebrow">COLABORACIÓN</span><h1>Oportunidades</h1><p>Vacantes, proyectos, consultorías, eventos e investigación.</p></div><button id="newOpportunityBtn" class="primary-btn">+ Publicar oportunidad</button></section>
+    <section class="filter-tabs" id="opportunityTabs"></section>
+    <section class="opportunity-list" id="opportunityList"></section>
+  </template>
+
+  <template id="historyTpl">
+    <section class="page-head"><div><span class="eyebrow">TRAZABILIDAD</span><h1>Historial de networking</h1><p>Revisa mesas anteriores, contactos creados y notas personales.</p></div></section>
+    <section class="timeline" id="historyTimeline"></section>
+  </template>
+
+  <template id="scoreTpl">
+    <section class="page-head"><div><span class="eyebrow">GAMIFICACIÓN</span><h1>Networking Score</h1><p>Reconoce la participación y el aporte real a la comunidad.</p></div></section>
+    <section class="score-layout">
+      <article class="score-main panel"><div class="score-badge">🏆</div><strong id="scoreValue">540</strong><h2>Constructor de Redes</h2><p>Te faltan 160 puntos para llegar a “Conector Estratégico”.</p><div class="progress"><i style="width:77%"></i></div></article>
+      <article class="panel"><h2>¿Cómo sumar puntos?</h2><div class="points-list"><div><span>Asistir a una mesa</span><strong>+20</strong></div><div><span>Completar perfil</span><strong>+10</strong></div><div><span>Crear una conexión mutua</span><strong>+40</strong></div><div><span>Publicar una oportunidad</span><strong>+15</strong></div><div><span>Recibir una recomendación</span><strong>+25</strong></div><div><span>Compartir un proyecto</span><strong>+30</strong></div></div></article>
+    </section>
+    <section class="panel"><div class="panel-head"><div><span class="eyebrow">MOVIMIENTOS</span><h2>Actividad de puntos</h2></div></div><div class="activity-list" id="scoreActivity"></div></section>
+  </template>
+
+  <template id="notificationsTpl">
+    <section class="page-head"><div><span class="eyebrow">ACTUALIZACIONES</span><h1>Notificaciones</h1></div></section>
+    <section class="panel"><div class="activity-list" id="notificationsList"></div></section>
+  </template>
+
+  <dialog id="opportunityDialog">
+    <form method="dialog" id="opportunityForm" class="dialog-card">
+      <div class="panel-head"><div><span class="eyebrow">NUEVA PUBLICACIÓN</span><h2>Compartir oportunidad</h2></div><button value="cancel" class="icon-btn">✕</button></div>
+      <label>Tipo<select name="type"><option>Vacante</option><option>Proyecto</option><option>Consultoría</option><option>Evento</option><option>Investigación</option></select></label>
+      <label>Título<input name="title" required placeholder="Ej. Especialista BIM"></label>
+      <label>Descripción<textarea name="description" required placeholder="Describe brevemente la oportunidad"></textarea></label>
+      <label>Ubicación<input name="location" placeholder="Lima / Remoto"></label>
+      <menu><button value="cancel" class="secondary-btn">Cancelar</button><button value="default" id="publishOpportunityBtn" class="primary-btn">Publicar</button></menu>
+    </form>
+  </dialog>
+
+  <nav class="bottom-nav" aria-label="Navegación principal móvil">
+    <button class="bottom-item active" data-route="dashboard"><span>⌂</span><small>Inicio</small></button>
+    <button class="bottom-item" data-route="matching"><span>⚡</span><small>Match</small></button>
+    <button class="bottom-item bottom-main" data-route="rooms"><span>👥</span><small>Mesas</small></button>
+    <button class="bottom-item" data-route="network"><span>🤝</span><small>Mi red</small></button>
+    <button class="bottom-item" data-route="profile"><span>👤</span><small>Perfil</small></button>
+  </nav>
+
+  <script src="app.js"></script>
+</body>
+</html>
